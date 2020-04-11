@@ -1,4 +1,4 @@
-# Makefile Docker Image
+# Makefile for Docker Images
 This *Makefile* can be used to speed up the process of building, running, interacting and publishing your Docker images.
 
 ## Requirements
@@ -6,7 +6,7 @@ This *Makefile* can be used to speed up the process of building, running, intera
 - .env
 
 ## Usage
-This *Makefile* must be placed in the same folder where your *Dockerfile*.
+This *Makefile* must be placed in the same folder where your *Dockerfile* is.
 ```
 help                           This help
 build                          Build Docker image based on the environment variables provided
