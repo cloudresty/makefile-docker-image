@@ -1,0 +1,10 @@
+# All log files
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+
+# Editor related files
+.vscode
+*.sublime*
