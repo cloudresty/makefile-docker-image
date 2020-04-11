@@ -82,7 +82,7 @@ MSG_ERROR 			= "\033[31mERROR\033[0m\t | "
 
 .PHONY: help build run stop restart status shell log release push clean login
 
-help: ## This help
+help: ## This help output
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .DEFAULT_GOAL := help
