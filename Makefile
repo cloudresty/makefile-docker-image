@@ -103,7 +103,7 @@ restart: ## Restart the container that runs the the image
 	@echo $(MSG_INFO) "Trying to restart the container..."
 	@$(CMD_DOCKER_RESTART) && echo $(MSG_DONE) "Container $$($(CON_GENERAL_FILTER)) has been successfully restarted..." && exit 0 || echo $(MSG_WARNING) "Can't find any containers using this image (running or not). I'll try "'"make run"'"..." && make run
 
-status: ## Check if any container is runing using the current image version
+status: ## Check if any container is running using the current image version
 	@echo $(MSG_INFO) "Checking Docker status..."
 	@$(CMD_DOCKER_STATUS)
 
@@ -127,5 +127,5 @@ clean: ## Remove all Docker containers that are not running and were using this 
 	@echo $(MSG_INFO) "Removing all unused / inactive containers based on $(IMG_PATCH_VER)..."
 	@$(CMD_DOCKER_CLEAN) && echo $(MSG_DONE) "Cleaning completed..." || echo $(MSG_ERROR) "Cannot remove some unused containers..."
 
-login: ## Docker registry login, this have to be defined within .env file
+login: ## Docker registry login, credentials must be defined within .env file
 	@$(CMD_DOCKER_LOGIN)
