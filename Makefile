@@ -9,76 +9,76 @@
 #  https://github.com/cloudresty/makefile-docker-image
 #
 
-# Import environment variables from .env file
+# Import all variables from .env file and export them
 include .env
 export
 
-# Docker Image
-IMG_NAME 			= $(ENV_REP_NAME)/$(ENV_REP_IMG_NAME)
-IMG_LATEST_VER		= $(IMG_NAME):latest
-IMG_MINOR_VER 		= $(IMG_NAME):$$(PATCH=$(ENV_REP_IMG_TAG); MINOR="$$(cut -d '.' -f 1 <<< "$$PATCH")"."$$(cut -d '.' -f 2 <<< "$$PATCH")"; echo $$MINOR;)
-IMG_PATCH_VER		= $(IMG_NAME):$(ENV_REP_IMG_TAG)
+# Docker image
+IMG_NAME            = $(ENV_REP_NAME)/$(ENV_REP_IMG_NAME)
+IMG_LATEST_VER      = $(IMG_NAME):latest
+IMG_MINOR_VER       = $(IMG_NAME):$$(PATCH=$(ENV_REP_IMG_TAG); MINOR="$$(cut -d '.' -f 1 <<< "$$PATCH")"."$$(cut -d '.' -f 2 <<< "$$PATCH")"; echo $$MINOR;)
+IMG_PATCH_VER       = $(IMG_NAME):$(ENV_REP_IMG_TAG)
 
-IMG_DET_IMG_VENDOR 	= $(ENV_DET_IMG_VENDOR)
-IMG_DET_IMG_NAME 	= $(ENV_DET_IMG_NAME)
-IMG_DET_IMG_DESC	= $(ENV_DET_IMG_DESC)
-IMG_DET_IMG_URL		= $(ENV_DET_IMG_URL)
-IMG_DET_IMG_VER 	= $(ENV_DET_IMG_VER)
-IMG_DET_BLD_DATE 	= $$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-IMG_DET_VCS_REF 	= $$(git rev-parse --short HEAD)
-IMG_DET_VCS_URL 	= $$(git config --get remote.origin.url)
-IMG_DET_IMG_DCK_CMD	= $(ENV_DET_IMG_DCK_CMD)
+IMG_DET_IMG_VENDOR  = $(ENV_DET_IMG_VENDOR)
+IMG_DET_IMG_NAME    = $(ENV_DET_IMG_NAME)
+IMG_DET_IMG_DESC    = $(ENV_DET_IMG_DESC)
+IMG_DET_IMG_URL     = $(ENV_DET_IMG_URL)
+IMG_DET_IMG_VER     = $(ENV_DET_IMG_VER)
+IMG_DET_BLD_DATE    = $$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+IMG_DET_VCS_REF     = $$(git rev-parse --short HEAD)
+IMG_DET_VCS_URL     = $$(git config --get remote.origin.url)
+IMG_DET_IMG_DCK_CMD = $(ENV_DET_IMG_DCK_CMD)
 IMG_DET_IMG_SCH_VER = $(ENV_DET_IMG_SCH_VER)
 
-# Docker Container Shortcuts
-CON_GENERAL_FILTER 	= docker ps -q --filter ancestor="$(IMG_PATCH_VER)"
-CON_RUNNING_FILTER 	= $(CON_GENERAL_FILTER) --filter status="running"
-CON_EXITED_FILTER 	= $(CON_GENERAL_FILTER) --filter status="exited"
+# Docker container shortcuts
+CON_GENERAL_FILTER  = docker ps -q --filter ancestor="$(IMG_PATCH_VER)"
+CON_RUNNING_FILTER  = $(CON_GENERAL_FILTER) --filter status="running"
+CON_EXITED_FILTER   = $(CON_GENERAL_FILTER) --filter status="exited"
 
 # Commands to be executed
 CMD_DOCKER_BUILD 	= docker build --no-cache -t $(IMG_PATCH_VER) \
-					--label=org.label-schema.vendor=$(IMG_DET_IMG_VENDOR) \
-					--label=org.label-schema.name=$(IMG_DET_IMG_NAME) \
-					--label=org.label-schema.description=$(IMG_DET_IMG_DESC) \
-					--label=org.label-schema.url=$(IMG_DET_IMG_URL) \
-					--label=org.label-schema.version=$(IMG_DET_IMG_VER) \
-					--label=org.label-schema.build-date=$(IMG_DET_BLD_DATE) \
-					--label=org.label-schema.vcs-ref=$(IMG_DET_VCS_REF) \
-					--label=org.label-schema.vcs-url=$(IMG_DET_VCS_URL) \
-					--label=org.label-schema.docker.cmd=$(IMG_DET_IMG_DCK_CMD) \
-					--label=org.label-schema.schema-version=$(IMG_DET_IMG_SCH_VER) \
-					.
-CMD_DOCKER_RUN 		= docker run -d -p $(ENV_CON_PORTS) $(IMG_PATCH_VER) >> /dev/null 2>&1
-CMD_DOCKER_STOP 	= docker stop $$($(CON_RUNNING_FILTER)) >> /dev/null 2>&1
-CMD_DOCKER_RESTART 	= $(CMD_DOCKER_STOP); \
+                    --label=org.label-schema.vendor=$(IMG_DET_IMG_VENDOR) \
+                    --label=org.label-schema.name=$(IMG_DET_IMG_NAME) \
+                    --label=org.label-schema.description=$(IMG_DET_IMG_DESC) \
+                    --label=org.label-schema.url=$(IMG_DET_IMG_URL) \
+                    --label=org.label-schema.version=$(IMG_DET_IMG_VER) \
+                    --label=org.label-schema.build-date=$(IMG_DET_BLD_DATE) \
+                    --label=org.label-schema.vcs-ref=$(IMG_DET_VCS_REF) \
+                    --label=org.label-schema.vcs-url=$(IMG_DET_VCS_URL) \
+                    --label=org.label-schema.docker.cmd=$(IMG_DET_IMG_DCK_CMD) \
+                    --label=org.label-schema.schema-version=$(IMG_DET_IMG_SCH_VER) \
+                    .
+CMD_DOCKER_RUN      = docker run -d -p $(ENV_CON_PORTS) $(IMG_PATCH_VER) >> /dev/null 2>&1
+CMD_DOCKER_STOP     = docker stop $$($(CON_RUNNING_FILTER)) >> /dev/null 2>&1
+CMD_DOCKER_RESTART  = $(CMD_DOCKER_STOP); \
 					  docker start $$($(CON_EXITED_FILTER) | sed -n 1p) >> /dev/null 2>&1
-CMD_DOCKER_STATUS 	= $(CON_RUNNING_FILTER)
-CMD_DOCKER_SHELL 	= docker exec -it $$($(CON_RUNNING_FILTER)) /bin/sh
-CMD_DOCKER_LOG 		= docker logs -f $$($(CON_RUNNING_FILTER))
-CMD_DOCKER_RELEASE 	= echo $(MSG_INFO) "Creating 'Latest Version Release' tag: $(IMG_LATEST_VER)..." && \
-					  docker tag $(IMG_PATCH_VER) $(IMG_LATEST_VER) && \
-					  echo $(MSG_INFO) "Tag has been successfully created..." && \
-					  echo $(MSG_INFO) "Creating 'Minor Version Release' tag: $(IMG_MINOR_VER)..." && \
-					  docker tag $(IMG_PATCH_VER) $(IMG_MINOR_VER) && \
-					  echo $(MSG_INFO) "Tag has been successfully created..."
+CMD_DOCKER_STATUS   = $(CON_RUNNING_FILTER)
+CMD_DOCKER_SHELL    = docker exec -it $$($(CON_RUNNING_FILTER)) /bin/sh
+CMD_DOCKER_LOG      = docker logs -f $$($(CON_RUNNING_FILTER))
+CMD_DOCKER_RELEASE  = echo $(MSG_INFO) "Creating 'Latest Version Release' tag: $(IMG_LATEST_VER)..." && \
+                    docker tag $(IMG_PATCH_VER) $(IMG_LATEST_VER) && \
+                    echo $(MSG_INFO) "Tag has been successfully created..." && \
+                    echo $(MSG_INFO) "Creating 'Minor Version Release' tag: $(IMG_MINOR_VER)..." && \
+                    docker tag $(IMG_PATCH_VER) $(IMG_MINOR_VER) && \
+                    echo $(MSG_INFO) "Tag has been successfully created..."
 CMD_DOCKER_PUSH 	= echo $(MSG_INFO) "Pushing $(IMG_LATEST_VER)..." && \
-					  docker push $(IMG_LATEST_VER) && \
-					  echo $(MSG_INFO) "Completed..." && \
-					  echo $(MSG_INFO) "Pushing $(IMG_MINOR_VER)..." && \
-					  docker push $(IMG_MINOR_VER) && \
-					  echo $(MSG_INFO) "Completed..." && \
-					  echo $(MSG_INFO) "Pushing $(IMG_PATCH_VER)..." && \
-					  docker push $(IMG_PATCH_VER) && \
-					  echo $(MSG_INFO) "Completed..."
-CMD_DOCKER_CLEAN 	= echo $(MSG_INFO) "Removing container(s):" $$($(CON_EXITED_FILTER)) && \
-					  $(CON_EXITED_FILTER) | xargs docker container rm --force >> /dev/null 2>&1
-CMD_DOCKER_LOGIN 	= docker login -u $(REG_USERNAME) -p $(REG_PASSWORD)
+                    docker push $(IMG_LATEST_VER) && \
+                    echo $(MSG_INFO) "Completed..." && \
+                    echo $(MSG_INFO) "Pushing $(IMG_MINOR_VER)..." && \
+                    docker push $(IMG_MINOR_VER) && \
+                    echo $(MSG_INFO) "Completed..." && \
+                    echo $(MSG_INFO) "Pushing $(IMG_PATCH_VER)..." && \
+                    docker push $(IMG_PATCH_VER) && \
+                    echo $(MSG_INFO) "Completed..."
+CMD_DOCKER_CLEAN    = echo $(MSG_INFO) "Removing container(s):" $$($(CON_EXITED_FILTER)) && \
+                    $(CON_EXITED_FILTER) | xargs docker container rm --force >> /dev/null 2>&1
+CMD_DOCKER_LOGIN    = docker login -u $(REG_USERNAME) -p $(REG_PASSWORD)
 
 # Message type
-MSG_INFO 			= "\033[32mINFO\033[0m\t | "
-MSG_DONE 			= "\033[32mDONE\033[0m\t | "
-MSG_WARNING 		= "\033[33mWARNING\033[0m\t | "
-MSG_ERROR 			= "\033[31mERROR\033[0m\t | "
+MSG_INFO            = "\033[32mINFO\033[0m\t | "
+MSG_DONE            = "\033[32mDONE\033[0m\t | "
+MSG_WARNING         = "\033[33mWARNING\033[0m\t | "
+MSG_ERROR           = "\033[31mERROR\033[0m\t | "
 
 .PHONY: help build run stop restart status shell log release push clean login
 
