@@ -51,7 +51,7 @@ CMD_DOCKER_BUILD 	= docker build --no-cache -t $(IMG_PATCH_VER) \
 CMD_DOCKER_RUN      = docker run -d -p $(ENV_CON_PORTS) $(IMG_PATCH_VER) >> /dev/null 2>&1
 CMD_DOCKER_STOP     = docker stop $$($(CON_RUNNING_FILTER)) >> /dev/null 2>&1
 CMD_DOCKER_RESTART  = $(CMD_DOCKER_STOP); \
-					  docker start $$($(CON_EXITED_FILTER) | sed -n 1p) >> /dev/null 2>&1
+                    docker start $$($(CON_EXITED_FILTER) | sed -n 1p) >> /dev/null 2>&1
 CMD_DOCKER_STATUS   = $(CON_RUNNING_FILTER)
 CMD_DOCKER_SHELL    = docker exec -it $$($(CON_RUNNING_FILTER)) /bin/sh
 CMD_DOCKER_LOG      = docker logs -f $$($(CON_RUNNING_FILTER))
